@@ -22,7 +22,6 @@ public class Game extends Canvas implements Runnable {
 			thread = new Thread(this, "Thread");
 			thread.start();
 		}
-		
 		private synchronized void stop()
 		{
 			if(!running)return;
