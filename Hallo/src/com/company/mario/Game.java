@@ -9,7 +9,10 @@ import java.awt.Color;
 import javax.swing.JFrame;
 
 import com.company.input.KeyInput;
+import com.company.mario.entity.Entity;
 import com.company.mario.entity.Player;
+import com.company.mario.graphics.Sprite;
+import com.company.mario.graphics.SpriteSheet;
 import com.company.mario.tile.Wall;
 
 public class Game extends Canvas implements Runnable {
@@ -25,6 +28,11 @@ public class Game extends Canvas implements Runnable {
 		//Generally, all the programs have at least one thread, known as the main thread, that is provided by the JVM or Java Virtual Machine at the starting of the program’s execution.
 		private boolean running = false;
 		public static Handler handler; //Objekt aus der Klasse Handler wird mit dem Namen handler erstellt
+		public static SpriteSheet sheet;
+		public static Camera cam;
+		public static Sprite grass;
+		public static Sprite player[] = new Sprite[10];
+		
 		
 		private synchronized void start() //Synchronized = protects the thread from other thread interferences
 		{
@@ -94,6 +102,7 @@ public class Game extends Canvas implements Runnable {
 			Graphics g = bs.getDrawGraphics();
 			g.setColor(Color.black);
 			g.fillRect(0, 0, getWidth(), getHeight()); //Graphik (Zeile 85-87) wurde erstellt
+			g.translate(cam.getX(), cam.getY());
 			handler.render(g);
 			g.dispose(); //Graphik wird angezeigt
 			bs.show(); //BuffetStrategies werden im Frame angezeigt
@@ -102,6 +111,19 @@ public class Game extends Canvas implements Runnable {
 		public void tick() {
 			// tick = update
 			handler.tick();
+			for(Entity e:handler.entity) {
+				if(e.getId()==Id.player) {
+					cam.tick(e);
+				}
+			}
+		}
+		
+		public static int getFrameWidth() {
+			return WIDTH*SCALE;
+		}
+		
+		public static int getFrameHeight() {
+			return HEIGHT*SCALE;
 		}
 				
 		public Game()
@@ -115,8 +137,16 @@ public class Game extends Canvas implements Runnable {
 		private void init()
 		{
 			handler = new Handler();
+			sheet = new SpriteSheet("/Spritesheet.png");
+			cam = new Camera();
 			
 			addKeyListener(new KeyInput());
+			
+			grass = new Sprite(sheet,1,1);
+			for(int i=0;i<player.length;i++) {
+				player[i] = new Sprite(sheet, i+1,16);			
+				}
+			
 			
 			handler.addEntity(new Player(200, 300, 64, 64, true, Id.player, handler));
 		}
